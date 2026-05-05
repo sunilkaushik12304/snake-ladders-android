@@ -1,65 +1,62 @@
 name: Build Android APK
 
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-22.04
-    timeout-minutes: 60
+    timeout-minutes: 90
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Install system dependencies
+      - name: Install Linux dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            git zip unzip \
-            openjdk-17-jdk \
+          sudo apt update
+          sudo apt install -y \
             python3-pip \
-            autoconf libtool pkg-config \
-            zlib1g-dev libncurses5-dev \
-            cmake libffi-dev libssl-dev \
-            ccache build-essential
+            build-essential \
+            git \
+            ffmpeg \
+            libsdl2-dev \
+            libsdl2-image-dev \
+            libsdl2-mixer-dev \
+            libsdl2-ttf-dev \
+            libportmidi-dev \
+            libswscale-dev \
+            libavformat-dev \
+            libavcodec-dev \
+            zlib1g-dev \
+            libgstreamer1.0 \
+            gstreamer1.0-plugins-base \
+            gstreamer1.0-plugins-good \
+            openjdk-17-jdk \
+            unzip \
+            zip \
+            autoconf \
+            libtool \
+            pkg-config \
+            cmake \
+            libffi-dev \
+            libssl-dev
 
-      - name: Install buildozer and Cython
+      - name: Install Python packages
         run: |
-          pip install --upgrade pip setuptools wheel
+          pip install --upgrade pip
           pip install Cython==0.29.33
-          pip install buildozer==1.5.0
-
-      - name: Cache buildozer directory
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.buildozer
-            ~/.gradle
-          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+          pip install buildozer
 
       - name: Build APK
         run: |
-          yes | buildozer android debug 2>&1 | tee build.log
+          buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
           name: SnakeLadders-APK
           path: bin/*.apk
-          retention-days: 30
-
-      - name: Upload build log on failure
-        if: failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-log
-          path: build.log
-          retention-days: 7
