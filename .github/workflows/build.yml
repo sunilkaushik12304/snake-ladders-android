@@ -9,7 +9,7 @@ jobs:
     timeout-minutes: 90
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v4
         with:
@@ -22,19 +22,6 @@ jobs:
             python3-pip \
             build-essential \
             git \
-            ffmpeg \
-            libsdl2-dev \
-            libsdl2-image-dev \
-            libsdl2-mixer-dev \
-            libsdl2-ttf-dev \
-            libportmidi-dev \
-            libswscale-dev \
-            libavformat-dev \
-            libavcodec-dev \
-            zlib1g-dev \
-            libgstreamer1.0 \
-            gstreamer1.0-plugins-base \
-            gstreamer1.0-plugins-good \
             openjdk-17-jdk \
             unzip \
             zip \
@@ -43,7 +30,8 @@ jobs:
             pkg-config \
             cmake \
             libffi-dev \
-            libssl-dev
+            libssl-dev \
+            zlib1g-dev
 
       - name: Install Python packages
         run: |
@@ -52,11 +40,10 @@ jobs:
           pip install buildozer
 
       - name: Build APK
-        run: |
-          buildozer android debug
+        run: buildozer android debug
 
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: SnakeLadders-APK
           path: bin/*.apk
